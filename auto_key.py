@@ -35,4 +35,4 @@ while True:
         execute_command(command)
     else:
         pass
-    time.sleep(0.5)
+    time.sleep(1)

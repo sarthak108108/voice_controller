@@ -6,11 +6,11 @@ convertor = OpenAI()
 
 def command_recon():
     with sr.Microphone() as source:
-        recogniser.adjust_for_ambient_noise(source, duration = 0.5)
+        recogniser.adjust_for_ambient_noise(source, duration = 0.1)
         print("listening...")
 
         try:
-            audio = recogniser.listen(source, timeout = 0.5, phrase_time_limit=0.5)
+            audio = recogniser.listen(source, timeout = 1, phrase_time_limit=1)
             print("Auio is captured : processing...")
 
             command = convertor.audio.transcription.create(
