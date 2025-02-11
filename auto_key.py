@@ -28,6 +28,7 @@ command_map = {
     "right": "d"
 }
 
+
 while True:
     command = command_recon()
     if command:
@@ -35,4 +36,4 @@ while True:
         execute_command(command)
     else:
         pass
-    time.sleep(1)
+    time.sleep(0.5)

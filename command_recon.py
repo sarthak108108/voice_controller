@@ -1,26 +1,46 @@
+import whisper
 import speech_recognition as sr
-from openai import OpenAI
+import tempfile
+import os
+import re
+
+model = whisper.load_model("tiny")
 
 recogniser = sr.Recognizer()
-convertor = OpenAI()
 
 def command_recon():
     with sr.Microphone() as source:
-        recogniser.adjust_for_ambient_noise(source, duration = 0.1)
-        print("listening...")
+        recogniser.adjust_for_ambient_noise(source, duration=0.5)
+        print("Listening...")
 
         try:
-            audio = recogniser.listen(source, timeout = 1, phrase_time_limit=1)
-            print("Auio is captured : processing...")
+            audio = recogniser.listen(source, timeout=1.5, phrase_time_limit=1.5)
+            print("Audio captured, processing...")
 
-            command = convertor.audio.transcription.create(
-                model = 'whisper-1',
-                file = audio
-            )
-            print('command recognised, command : $s', command)
-            return command
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
+                temp_audio.write(audio.get_wav_data())
+                temp_audio_path = temp_audio.name  
+
+            print(temp_audio.name)
+
+            result = model.transcribe(temp_audio_path)
+            command = result["text"]
+            command = command.lower()
+            cleaned_command = re.sub(r'[^a-z\s]', '', command)
+            first_word = cleaned_command.split()[0] if cleaned_command else ''
+            print(f"Command recognized: {command}")
+            os.remove(temp_audio_path)
+            
+
+            return first_word
+
         except sr.UnknownValueError:
-            return None
+            print("Could not understand audio")
         except sr.WaitTimeoutError:
-            return None
+            print("Listening timed out")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
+        return None
+    
+    
